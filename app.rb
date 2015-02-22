@@ -22,6 +22,38 @@ def valid_sign_in?(input)
   user_info[:username] == username && user_info[:password] == password
 end
 
+def valid_username?(input)
+  return false if input.values.include?("")
+
+  username = input[:username]
+
+  users = []
+  CSV.foreach('users.csv', headers: true, header_converters: :symbol) do |row|
+    users << row[1]
+  end
+  binding.pry
+  !users.include?(username)
+end
+
+def valid_password?(input)
+  return false if input.values.include?("")
+
+  password = input[:password]
+  confirm_password = input[:confirm_password]
+
+  password == confirm_password
+end
+
+def add_user
+  user = params[:user]
+  username = params[:username]
+  password = params[:password]
+
+  CSV.open('users.csv', 'a+') do |file|
+    file << [user, username, password]
+  end
+end
+
 def retrieve_user_info(username)
   users = {}
   CSV.foreach("users.csv", headers: true, header_converters: :symbol) do |row|
@@ -101,6 +133,23 @@ post '/sign_in' do
   else
     @input = params
     erb :sign_in
+  end
+end
+
+get '/register' do
+  @input = Hash.new("")
+  erb :register
+end
+
+post '/register' do
+  binding.pry
+  if valid_username?(params) && valid_password?(params)
+    session[:user] = params[:username]
+    add_user
+    redirect('/')
+  else
+    @input = params
+    erb :register
   end
 end
 
