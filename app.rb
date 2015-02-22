@@ -54,7 +54,6 @@ end
 
 def add_home(user, info)
   #Still working on this - DRF 2/22/15 8:14 AM
-  binding.pry
   File.open('homes.csv', 'a') do |f|
     f.write("#{user},#{info["home"]}")
   end
@@ -72,6 +71,7 @@ def get_reviews(home)
   CSV.foreach("reviews.csv", headers: true, header_converters: :symbol) do |row|
     reviews_hash = row.to_hash
     homes << reviews_hash if reviews_hash[:home] == home
+    binding.pry
   end
   homes
 end
