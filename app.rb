@@ -32,7 +32,6 @@ def valid_username?(input)
   CSV.foreach('users.csv', headers: true, header_converters: :symbol) do |row|
     users << row[1]
   end
-  binding.pry
   !users.include?(username)
 end
 
@@ -140,7 +139,6 @@ get '/register' do
 end
 
 post '/register' do
-  binding.pry
   if valid_username?(params) && valid_password?(params)
     session[:user] = params[:username]
     add_user
