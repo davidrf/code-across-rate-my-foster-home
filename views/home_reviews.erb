@@ -1,0 +1,10 @@
+<ul>
+  <% @reviews.each do |review| %>
+  <li>
+    <p>Reviewer: <%= review[:reviewer] %></p>
+    <p>Date: <%= review[:date] %></p>
+    <p>Rating: <%= review[:rating] %></p>
+    <p>Review: <%= review[:review] %></p>
+  </li>
+  <% end %>
+</ul>

@@ -1,0 +1,21 @@
+<h1>Foster Homes</h1>
+
+<form action="/new_home" method="get">
+  <button type="submit" class="btn btn-default">New Home</button>
+</form>
+<br>
+<ul>
+<% @homes.each do |home| %>
+    <li>
+      <div class="btn-group" role="group" aria-label="...">
+        <form method="get">
+          <%= home %>
+          <button type="submit" class="btn btn-default" formaction="/foster_homes/reviews/<%= home %>">See Reviews</button>
+          <button type="submit" class="btn btn-default" formaction="/foster_homes/new_review/<%= home %>">New Review</button>
+          <button type="submit" class="btn btn-default" formmethod ="post" formaction="/foster_homes?home=<%= home %>">Delete</button>
+        </form>
+      </div>
+
+    </li>
+<% end %>
+</ul>
