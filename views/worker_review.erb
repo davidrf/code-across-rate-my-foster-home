@@ -1,0 +1,20 @@
+<form action="/foster_homes/new_review/<%= @home %>/parents" method="post">
+  <label for="reviewer">Name</label>
+  <input type="text" name="reviewer">
+  <p>On a scale of 0-10, where 0 is not likely and 10 is extremely likely, how likely are you to recommend this foster home to another foster parent?</p>
+  <select name="rating">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+  </select>
+  <p>We apreciate your feedback. Please explain your rating.</p>
+  <textarea name="explanation"></textarea>
+  <input type="submit" class="login login-submit">
+</form>

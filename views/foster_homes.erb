@@ -1,7 +1,9 @@
 <h1>Foster Homes</h1>
 
-<form action="/new_home" method="get">
-  <button type="submit" class="btn btn-default">New Home</button>
+<form action="/foster_homes?add=true" method="post">
+  <label for="username">Add Home</label>
+  <input type="text" name="home" placeholder="Home Name">
+  <input type="submit">
 </form>
 <br>
 <ul>

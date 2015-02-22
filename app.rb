@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'csv'
+require 'date'
 enable :sessions
 
 configure :development, :test do
@@ -53,16 +54,8 @@ def delete(home)
 end
 
 def add_home(user, info)
-  #Still working on this - DRF 2/22/15 8:14 AM
-  File.open('homes.csv', 'a') do |f|
-    f.write("#{user},#{info["home"]}")
-  end
-
-  home = info.delete("home")
-  info =
-
-  File.open('people.csv', 'a') do |f|
-    f.write("#{home},#{info.values.joi}")
+  CSV.open("homes.csv", "a") do |csv|
+    csv << [user, info[:home]]
   end
 end
 
@@ -71,19 +64,24 @@ def get_reviews(home)
   CSV.foreach("reviews.csv", headers: true, header_converters: :symbol) do |row|
     reviews_hash = row.to_hash
     homes << reviews_hash if reviews_hash[:home] == home
-    binding.pry
   end
-  homes
+  homes.reverse
 end
-#
-# def get_first_person(home, person_type)
-# end
-#
-# def get_next_person(person, person_type)
-# end
-#
-# def store_review(reviewer, review)
-# end
+
+def store_review(review)
+  date = Time.now.to_s
+  date = DateTime.parse(date).strftime("%d/%m/%Y %H:%M")
+
+  CSV.open("reviews.csv", "a") do |csv|
+    csv << [review[:home], review[:reviewer], date, review[:rating], review[:explanation]]
+  end
+end
+
+def go_up_directory(path)
+  path = path.split("/")
+  path.pop
+  path.join("/")
+end
 
 get '/' do
   redirect('/sign_in')
@@ -110,7 +108,12 @@ get '/foster_homes' do
 end
 
 post '/foster_homes' do
-  delete(params["home"])
+  if params[:add]
+    add_home(session[:user], params)
+  else
+    delete(params["home"])
+  end
+
   redirect('/foster_homes')
 end
 
@@ -128,52 +131,26 @@ get '/foster_homes/reviews/:home' do |home|
   @reviews = get_reviews(home)
   erb :home_reviews
 end
-#
-# get '/foster_homes/new_review/:home' do |home|
-#   @parent = get_first_person(home, "parent")
-#   redirect("/foster_homes/new_review/:home/parents/#{@parent}")
-# end
-#
-# get '/foster_homes/new_review/:home/parents/:parent' do |home, parent|
-#   @home = home
-#   @parent = parent
-#   erb :rate_page
-# end
-#
-# post '/foster_homes/new_review/:home/parents/:parent' do |home, parent|
-#   store_review(home, parent, params)
-#   @parent = get_next_person(parent, "parent")
-#   if @parent
-#     redirect("/foster_homes/new_review/:home/parents/#{@parent}")
-#   else
-#     @kid = get_first_person(home, "kid")
-#     redirect("/foster_homes/new_review/:home/kids/#{@kid}")
-#   end
-# end
-#
-# get '/foster_homes/new_review/:home/kids/:kid' do |home, kid|
-#   @home = home
-#   @kid = kid
-#   erb :rate_page
-# end
-#
-# post '/foster_homes/new_review/:home/kids/:kid' do |home, kid|
-#   store_review(home, kid, params)
-#   @kid = get_next_person(kid)
-#   if @kid
-#     redirect("/foster_homes/new_review/:home/kids/#{@kid}")
-#   else
-#     redirect("/foster_homes/new_review/:home/#{session[:user]}")
-#   end
-# end
-#
-# get '/foster_homes/new_review/:home/:user' do |home, user|
-#   @home = home
-#   @user = user
-#   erb :rate_page
-# end
-#
-# post '/foster_homes/new_review/:home/:user' do |home, user|
-#   store_review(home, user, params)
-#   redirect('/foster_homes')
-# end
+
+get '/foster_homes/new_review/:home' do |home|
+  @home = home
+  erb :review_options
+end
+
+get '/foster_homes/new_review/:home/:person' do |home, person|
+  @home = home
+
+  if person == "parents"
+    erb :parent_review
+  elsif person == "children"
+    erb :children_review
+  else
+    erb :worker_review
+  end
+end
+
+post '/foster_homes/new_review/:home/:person' do |home, person|
+  store_review(params)
+  path = go_up_directory(request.path)
+  redirect(path)
+end
